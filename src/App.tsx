@@ -53,9 +53,17 @@ function App() {
     itemsPerPage: itemsPerPage,
   });
 
-  // Update current page
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    const totalPages = Math.ceil(returnData.length / itemsPerPage);
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
   };
 
   return (
@@ -68,14 +76,20 @@ function App() {
           </div>
         ))}
       <div>
-        {Array.from(
-          { length: Math.ceil(returnData.length / itemsPerPage) },
-          (_, index) => (
-            <button key={index} onClick={() => handlePageChange(index + 1)}>
-              {index + 1}
-            </button>
-          )
-        )}
+        <div>
+          <button onClick={handlePreviousPage} disabled={currentPage === 1}>
+            Previous
+          </button>
+          <span>{currentPage}</span>
+          <button
+            onClick={handleNextPage}
+            disabled={
+              currentPage === Math.ceil(returnData.length / itemsPerPage)
+            }
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );
