@@ -13,9 +13,17 @@ import { useTodos } from "./services/api/useTodos";
 // ** Axios defaults
 axios.defaults.baseURL = "https://jsonplaceholder.typicode.com";
 
+interface Pagination {
+  data?: any;
+  page?: number;
+  itemsPerPage?: number;
+}
+
 function App() {
   // State
   const [returnData, setReturnData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(50);
 
   // Hook
   const { getTodos } = useTodos();
@@ -30,15 +38,45 @@ function App() {
     handleGetTodos();
   }, []);
 
+  // Pagination
+  const paginate = (props: Pagination) => {
+    const { data = [], page = 1, itemsPerPage = 10 } = props;
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+
+    return data.slice(startIndex, endIndex);
+  };
+
+  const paginatedData = paginate({
+    data: returnData,
+    page: currentPage,
+    itemsPerPage: itemsPerPage,
+  });
+
+  // Update current page
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
   return (
     <div className="App">
       <div style={{ color: "red" }}>Titles</div>
-      {returnData &&
-        returnData.map((item: any, index) => (
+      {paginatedData &&
+        paginatedData.map((item: any, index: any) => (
           <div key={index} style={{ display: "flex" }}>
             {item.id}. {item.title}
           </div>
         ))}
+      <div>
+        {Array.from(
+          { length: Math.ceil(returnData.length / itemsPerPage) },
+          (_, index) => (
+            <button key={index} onClick={() => handlePageChange(index + 1)}>
+              {index + 1}
+            </button>
+          )
+        )}
+      </div>
     </div>
   );
 }
